@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{% if current_category %}{{ current_category.name }}{% else %}Каталог{% endif %} — WILD CAMP{% endblock %}
+{% block content %}
+<section class="section container catalog-page">
+  <div class="page-heading">
+    <span class="eyebrow">КАТАЛОГ</span>
+    <h1>{% if current_category %}{{ current_category.name }}{% else %}Все товары{% endif %}</h1>
+  </div>
+
+  <div class="catalog-layout">
+    <form class="filters{% if panel_open %} is-open{% endif %}" id="filters" method="get" action="{% url 'catalog' %}">
+      <h2 class="filters-title">Фильтры</h2>
+
+      <div class="filters-bar">
+        <label class="field field-search">
+          <span class="field-label">Поиск</span>
+          <input type="search" name="q" placeholder="Поиск по каталогу" value="{{ query }}">
+        </label>
+        <button type="button" class="button filters-toggle" aria-expanded="{% if panel_open %}true{% else %}false{% endif %}" aria-controls="filters-panel">Фильтры <span aria-hidden="true">▾</span></button>
+        <label class="field field-sort">
+          <span class="field-label">Сортировка</span>
+          <select name="sort">{% for value, label in sort_options %}<option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        </label>
+      </div>
+
+      <div class="filters-panel" id="filters-panel">
+        <label class="field field-category">
+          <span class="field-label">Категория</span>
+          <select name="category">
+            <option value="">Все категории</option>
+            {% for c in categories %}<option value="{{ c.id }}" {% if selected_category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+          </select>
+        </label>
+        <div class="field field-price">
+          <span class="field-label">Цена от — до</span>
+          <div class="price-range">
+            <input type="number" name="min_price" min="0" placeholder="от" value="{{ min_price }}" aria-label="Цена от">
+            <input type="number" name="max_price" min="0" placeholder="до" value="{{ max_price }}" aria-label="Цена до">
+          </div>
+        </div>
+        <label class="check-label"><input type="checkbox" name="available" value="1" {% if available == "1" %}checked{% endif %}> Только в наличии</label>
+        <button class="button button-dark button-full">Применить</button>
+      </div>
+    </form>
+
+    <div class="catalog-results">
+      <div class="product-grid catalog-grid">
+        {% for product in page_obj %}{% include "includes/product_card.html" %}{% empty %}<p>По вашему запросу ничего не найдено.</p>{% endfor %}
+      </div>
+
+      {% if page_obj.has_other_pages %}
+      <nav class="pagination" aria-label="Страницы каталога">
+        {% if page_obj.has_previous %}<a class="page-link" href="{% querystring page=page_obj.previous_page_number %}" aria-label="Предыдущая страница">‹</a>{% else %}<span class="page-link is-disabled">‹</span>{% endif %}
+        {% for num in page_range %}{% if num is None %}<span class="page-link is-gap">…</span>{% elif num == page_obj.number %}<span class="page-link is-active" aria-current="page">{{ num }}</span>{% else %}<a class="page-link" href="{% querystring page=num %}">{{ num }}</a>{% endif %}{% endfor %}
+        {% if page_obj.has_next %}<a class="page-link" href="{% querystring page=page_obj.next_page_number %}" aria-label="Следующая страница">›</a>{% else %}<span class="page-link is-disabled">›</span>{% endif %}
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

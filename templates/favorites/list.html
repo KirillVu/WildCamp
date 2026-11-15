@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block content %}<section class="section container"><h1>Избранное</h1><div class="product-grid">{% for item in items %}{% with product=item.product %}{% include "includes/product_card.html" %}{% endwith %}{% empty %}<p>В избранном пока ничего нет.</p>{% endfor %}</div></section>{% endblock %}

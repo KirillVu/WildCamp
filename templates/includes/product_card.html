@@ -1,0 +1,18 @@
+<article class="product-card">
+  <a class="product-image" href="{% url 'product_detail' product.slug %}">
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">{% else %}<div class="image-placeholder">WILD CAMP</div>{% endif %}
+  </a>
+  <div class="product-info">
+    <span class="eyebrow">{{ product.category.name }}</span>
+    <h3><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3>
+    <p class="muted">{{ product.short_description|default:"Снаряжение для путешествий" }}</p>
+    <div class="product-bottom"><strong>{{ product.price }} ₽</strong><span class="stock">{% if product.stock %}В наличии{% else %}Нет в наличии{% endif %}</span></div>
+    {% if product.stock %}
+      {% if user.is_authenticated %}
+      <form action="{% url 'add_to_cart' product.id %}" method="post">{% csrf_token %}<button class="button button-dark button-full">В корзину</button></form>
+      {% else %}
+      <a class="button button-dark button-full" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">В корзину</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</article>
